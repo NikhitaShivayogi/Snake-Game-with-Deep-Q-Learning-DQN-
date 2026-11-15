@@ -1,28 +1,15 @@
-# Snake Game AI
+# Snake Game AI - Deep Q-Learning
 
-A complete Snake game with AI training using Deep Q-Network (DQN) reinforcement learning.
-
----
-
-## What is This?
-
-Play classic Snake manually OR train an AI agent to play it automatically using machine learning. Monitor training progress with real-time charts and analytics.
-
-**Three Game Modes:**
-- **Play Manually** - Control the snake with arrow keys
-- **Train AI** - Teach an AI agent to play using DQN algorithm
-- **Test AI** - Watch the trained AI play and see how good it got
+A full-stack web application where users can play Snake manually, train AI using Deep Q-Learning, and watch the trained AI play automatically with real-time analytics.
 
 ---
 
-## Technology Stack
+## Project Overview
 
-| Component | Technology |
-|-----------|-----------|
-| **Backend** | Python, FastAPI, PyTorch, Pygame |
-| **Frontend** | React, Vite, Axios |
-| **AI** | Deep Q-Network (DQN) Reinforcement Learning |
-| **Game Engine** | Custom Snake game engine |
+**Backend**: Python FastAPI with game engine and DQN AI training  
+**Frontend**: React Vite dashboard with 5 interactive pages  
+**AI Algorithm**: Deep Q-Learning (DQN) using PyTorch  
+**Database**: JSON-based model and training data storage
 
 ---
 
@@ -30,303 +17,225 @@ Play classic Snake manually OR train an AI agent to play it automatically using 
 
 ```
 Snake Game Agent/
-├── README.md                 ← You are here
-├── USAGE.md                  ← Detailed how-to guide
-├── requirements.txt          ← Python dependencies
-├── start_backend.bat         ← Start backend server
+├── backend/                    ← Python FastAPI server
+│   ├── agent/                 ← DQN neural network
+│   ├── game/                  ← Game engine
+│   ├── training/              ← Training loop
+│   ├── visualization/         ← Charts generation
+│   └── api/                   ← REST API endpoints
 │
-├── backend/                  ← Python backend (FastAPI)
-│   ├── main.py              ← Entry point
-│   ├── api/server.py        ← REST API endpoints
-│   ├── game/                ← Game engine
-│   │   └── snake_game.py   ← Core game logic
-│   ├── agent/               ← DQN AI agent
-│   │   ├── dqn_agent.py    ← Neural network agent
-│   │   └── environment.py   ← Game environment
-│   ├── training/            ← Training system
-│   │   └── trainer.py      ← Training loop
-│   └── visualization/       ← Analytics charts
-│       └── charts.py       ← Chart generation
+├── frontend/                   ← React Vite frontend
+│   ├── src/
+│   │   ├── pages/            ← Dashboard, Play, Training, Analytics, Models
+│   │   ├── components/       ← Game canvas, UI components
+│   │   └── services/         ← API client
 │
-├── frontend/                ← React frontend (Vite)
-│   ├── package.json
-│   ├── vite.config.js      ← Dev server config
-│   └── src/
-│       ├── pages/          ← Main pages
-│       ├── components/     ← UI components
-│       ├── services/       ← API client
-│       └── styles/         ← CSS styling
-│
-├── saved_models/           ← Trained AI models (auto-created)
-└── training_logs/          ← Training charts and history (auto-created)
+├── saved_models/              ← Trained AI models (.pt files)
+├── training_logs/             ← Training data and charts
+├── requirements.txt           ← Python dependencies
+└── start_backend.bat          ← Quick start script (Windows)
 ```
 
 ---
 
-## Installation
+## Setup Instructions
 
-### Requirements
+### Prerequisites
+
 - Python 3.8+
 - Node.js 16+
 - 4GB RAM minimum
 
-### Step 1: Install Python Dependencies
+### Installation
 
+**Step 1: Install Python Dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-**What gets installed:**
-- FastAPI (web framework)
-- PyTorch (neural network library)
-- Pygame (game rendering)
-- NumPy, Pandas (data processing)
-
-### Step 2: Install Frontend Dependencies
-
+**Step 2: Install Frontend Dependencies**
 ```bash
 cd frontend
 npm install
+cd ..
 ```
 
 ---
 
-## Running the Project
+## Running the Application
 
-### Option 1: Quick Start (Windows)
+### Windows
 
 **Terminal 1 - Start Backend:**
 ```bash
 start_backend.bat
 ```
-Backend runs at: http://localhost:8000
+Backend runs at: `http://localhost:8000`
 
 **Terminal 2 - Start Frontend:**
 ```bash
 cd frontend
 npm run dev
 ```
-Frontend runs at: http://localhost:5173
+Frontend runs at: `http://localhost:5173`
 
-**Then open browser:**
-Navigate to http://localhost:5173
+### macOS/Linux
 
----
-
-### Option 2: Manual Start (Any OS)
-
-**Terminal 1 - Start Backend:**
+**Terminal 1 - Backend:**
 ```bash
 python backend/main.py
 ```
 
-**Terminal 2 - Start Frontend:**
+**Terminal 2 - Frontend:**
 ```bash
 cd frontend
 npm run dev
 ```
 
----
+### Access Application
 
-## How to Play
-
-### Manual Game (Human Player)
-
-1. Go to **Play Game** page
-2. Click **Start Game**
-3. Use **arrow keys** to control snake:
-   - ↑ Up | ↓ Down | ← Left | → Right
-4. Eat food (🟥) to grow and score points
-5. Avoid hitting walls or yourself
-6. Game ends on collision
-
-**Score = number of food pieces eaten**
+Open your browser and go to:
+```
+http://localhost:5173
+```
 
 ---
 
-## How to Train AI
+## Features
 
-### What is DQN?
+### 5 Main Pages
 
-Deep Q-Network teaches an AI to play by trial and error:
-- AI plays many games automatically
-- After each game, it learns from experience
-- Over time, its strategy improves
-- Eventually, it plays as well as (or better than) humans
+1. **Dashboard** - Project overview and quick start guide
+2. **Play Game** - Manual or AI gameplay modes
+3. **AI Training** - Configure and train the DQN model (100-500 episodes)
+4. **Analytics** - Real-time training charts and statistics
+5. **Model Management** - Save, load, and delete trained models
 
-### Training Steps
+### Key Capabilities
 
-1. Go to **AI Training** page
-2. Set parameters:
-   - **Episodes**: How many games to play (e.g., 100, 500, 1000)
-   - **Learning Rate**: How fast it learns (default: 0.001)
-   - **Discount Factor**: Value of future rewards (default: 0.99)
-   - **Epsilon**: Exploration vs exploitation (default: 1.0)
-3. Click **Start Training**
-4. Wait for training to complete
-5. Model is auto-saved to `saved_models/`
-
-**Training takes time** - 100 episodes ≈ 2-5 minutes depending on CPU
+- ✓ Play Snake manually with arrow keys
+- ✓ Train AI using Deep Q-Learning algorithm
+- ✓ Watch trained AI play automatically
+- ✓ Monitor training progress with live charts
+- ✓ Save and load trained models
+- ✓ View detailed training analytics
 
 ---
 
-## Monitor Training
+## File Descriptions
 
-### Analytics Page
-
-See real-time progress:
-- **Score Chart** - How well the AI plays over time (should go up)
-- **Loss Chart** - How fast it's learning (should go down)
-- **Statistics** - Best score, average score, total episodes
-
-**Interpretation:**
-- Rising scores = AI improving ✓
-- Dropping loss = Good learning ✓
-- Plateauing = AI reached its limit (normal)
-
----
-
-## Test & Save AI
-
-### Testing a Model
-
-1. Go to **Test AI** page
-2. Click **Start Testing**
-3. Watch the AI play automatically
-4. See performance stats
-
-### Managing Models
-
-1. Go to **Model Management**
-2. View all trained models
-3. Load a model to use it
-4. Delete old models to save space
-
-**Models are saved automatically after training**
+| File | Purpose |
+|------|---------|
+| `requirements.txt` | Python packages needed |
+| `start_backend.bat` | Quick start script for Windows |
+| `backend/main.py` | Backend entry point |
+| `backend/api/server.py` | REST API routes |
+| `backend/game/snake_game.py` | Game logic and rules |
+| `backend/agent/dqn_agent.py` | DQN neural network |
+| `backend/training/trainer.py` | Training loop |
+| `frontend/src/pages/*.jsx` | React page components |
 
 ---
 
-## File Locations
+## API Endpoints
 
-| What | Where |
-|------|-------|
-| Trained AI models | `saved_models/` |
-| Training progress charts | `training_logs/` |
-| Backend code | `backend/` |
-| Frontend code | `frontend/src/` |
-| Game engine | `backend/game/` |
-| AI agent | `backend/agent/` |
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/health` | GET | Health check |
+| `/api/training/start` | POST | Start AI training |
+| `/api/training/status` | GET | Get training progress |
+| `/api/training/history` | GET | Get training data |
+| `/api/model/list` | GET | List saved models |
+| `/api/model/save` | POST | Save model |
+| `/api/model/load` | POST | Load model |
+| `/api/model/delete` | POST | Delete model |
+| `/api/charts/{type}` | GET | Get training charts |
 
----
-
-## Troubleshooting
-
-### Error: "Request failed with status code 404"
-
-**Problem:** Frontend can't reach backend API
-
-**Fix:**
-1. Check if backend is running: `python backend/main.py`
-2. Verify port 8000 is not blocked
-3. Refresh browser (Ctrl+R)
-4. Check browser console for errors
-
-### Snake not moving
-
-**Fix:**
-1. Click **Start Game** (snake won't move until you start)
-2. Refresh browser
-3. Restart backend
-
-### Training hangs or crashes
-
-**Fix:**
-1. Try smaller episode count (e.g., 50)
-2. Check system resources (RAM)
-3. Restart backend and try again
-
-### Charts not showing
-
-**Fix:**
-1. Train at least one episode first
-2. Check `training_logs/` folder exists
-3. Refresh Analytics page
+Full API documentation: `http://localhost:8000/docs`
 
 ---
 
-## Example: Full Workflow
+## Workflow
 
-**Goal:** Train an AI and watch it play
+### To Play Manually
 
-1. **Train:**
-   - AI Training page → Set 200 episodes → Start Training
-   - Wait ~5-10 minutes
+1. Open http://localhost:5173
+2. Go to "Play Game" page
+3. Select "Human Player"
+4. Click "START GAME"
+5. Use arrow keys to control snake
 
-2. **Monitor:**
-   - Analytics page → Watch score go up
-   - When "Training complete" appears, it's done
+### To Train AI
 
-3. **Test:**
-   - Test AI page → Start Testing
-   - Watch your trained AI play!
+1. Go to "AI Training" page
+2. Set episodes (e.g., 100)
+3. Click "START TRAINING"
+4. Wait for completion (auto-saves model)
 
-4. **Save:**
-   - Model automatically saved as `model_<timestamp>.pth`
-   - Find it in Model Management page
+### To Watch AI Play
+
+1. Go to "Play Game" page
+2. Select "AI Player"
+3. Click "START GAME"
+4. Watch the trained AI play
+
+### To View Analytics
+
+1. Go to "Analytics" page
+2. View training progress charts
+3. Check scores, rewards, and loss metrics
+
+---
+
+## Technology Stack
+
+**Backend**:
+- FastAPI (REST API framework)
+- PyTorch (neural networks)
+- Pygame (game engine)
+- Matplotlib (chart generation)
+
+**Frontend**:
+- React 18
+- Vite (build tool)
+- Axios (HTTP client)
+- CSS3 (styling)
+
+**AI/ML**:
+- Deep Q-Learning (DQN)
+- Neural Networks (3 hidden layers, 128 neurons each)
+- Experience Replay
+- Target Network
 
 ---
 
 ## System Requirements
 
-| Resource | Minimum | Recommended |
-|----------|---------|-------------|
-| RAM | 4 GB | 8 GB |
-| CPU | Dual-core | Quad-core |
-| Disk | 500 MB | 2 GB |
-| GPU | Not required | NVIDIA GPU (faster) |
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| RAM | 4 GB | 8+ GB |
+| Disk Space | 500 MB | 2+ GB |
+| Python | 3.8 | 3.9+ |
+| Node.js | 16 | 18+ |
 
 ---
 
-## Keyboard Controls
+## Troubleshooting
 
-| Key | Action |
-|-----|--------|
-| Arrow Keys | Move snake (Play Game) |
-| Ctrl+R | Refresh browser |
-| F12 | Open developer console |
-
----
-
-## For More Details
-
-- **How to Use:** Read `USAGE.md` for detailed feature guide
-- **Game Rules:** Classic Snake game rules apply
-- **API Docs:** Backend Swagger docs at `http://localhost:8000/docs`
+| Issue | Solution |
+|-------|----------|
+| Cannot connect to backend | Check if backend is running on port 8000 |
+| npm install fails | Update Node.js to version 16 or higher |
+| Port 8000 already in use | Close other applications using port 8000 |
+| Charts not displaying | Train at least 1 episode first |
 
 ---
 
-## Quick Checklist
+## Documentation
 
-- [ ] Python 3.8+ installed
-- [ ] Node.js 16+ installed
-- [ ] Ran `pip install -r requirements.txt`
-- [ ] Ran `npm install` in frontend folder
-- [ ] Backend running on port 8000
-- [ ] Frontend running on port 5173
-- [ ] Browser opens http://localhost:5173
-
-**Not working?** Check Troubleshooting section above.
+- **Algorithm Details**: See `REINFORCEMENT_LEARNING_GUIDE.md`
+- **Page Guide**: See `PAGES_GUIDE.md`
 
 ---
 
-## What's Under the Hood?
-
-- **Game Engine** (Pygame) - Handles snake movement, collision, food spawning
-- **DQN Agent** (PyTorch) - Neural network that learns to play
-- **Training Loop** - Runs 1000s of games, AI learns from each one
-- **FastAPI Server** - Connects frontend to backend
-- **React Dashboard** - Beautiful UI for humans to interact with
-
----
-
-**Ready to play or train?** Open http://localhost:5173 in your browser!
+**Built with Python, React, PyTorch, and FastAPI** 🐍

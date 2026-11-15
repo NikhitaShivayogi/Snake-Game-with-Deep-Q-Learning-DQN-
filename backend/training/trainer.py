@@ -135,6 +135,9 @@ class Trainer:
         self.total_episodes = episodes
         self.current_episode = 0
         
+        # CRITICAL: Reset agent episodes counter to start fresh
+        self.agent.episodes_trained = 0
+        
         # Reset training if starting fresh
         if self.agent.episodes_trained == 0:
             self.episode_rewards = []

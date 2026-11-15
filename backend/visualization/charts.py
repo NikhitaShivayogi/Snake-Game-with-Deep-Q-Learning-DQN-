@@ -214,7 +214,7 @@ class TrainingVisualizer:
         axes[1, 1].set_facecolor('#2a2a2a')
         
         plt.tight_layout()
-        filepath = os.path.join(self.output_dir, 'combined_metrics.png')
+        filepath = os.path.join(self.output_dir, 'combined.png')
         plt.savefig(filepath, dpi=100, facecolor='#1a1a1a')
         plt.close()
         
