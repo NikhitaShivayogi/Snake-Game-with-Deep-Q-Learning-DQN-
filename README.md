@@ -164,6 +164,7 @@ Full API documentation: `http://localhost:8000/docs`
 3. Select "Human Player"
 4. Click "START GAME"
 5. Use arrow keys to control snake
+6. Click "END GAME" button or press **K key** to stop playing anytime
 
 ### To Train AI
 
@@ -171,6 +172,7 @@ Full API documentation: `http://localhost:8000/docs`
 2. Set episodes (e.g., 100)
 3. Click "START TRAINING"
 4. Wait for completion (auto-saves model)
+5. Click "STOP TRAINING" to cancel anytime
 
 ### To Watch AI Play
 
@@ -178,12 +180,25 @@ Full API documentation: `http://localhost:8000/docs`
 2. Select "AI Player"
 3. Click "START GAME"
 4. Watch the trained AI play
+5. Click "END GAME" button or press **K key** to stop anytime
 
 ### To View Analytics
 
 1. Go to "Analytics" page
 2. View training progress charts
 3. Check scores, rewards, and loss metrics
+
+---
+
+## Keyboard Controls
+
+| Key | Action | Where |
+|-----|--------|-------|
+| ⬆️ UP Arrow | Move snake up | Play Game (Manual mode) |
+| ⬇️ DOWN Arrow | Move snake down | Play Game (Manual mode) |
+| ⬅️ LEFT Arrow | Move snake left | Play Game (Manual mode) |
+| ➡️ RIGHT Arrow | Move snake right | Play Game (Manual mode) |
+| **K** | End/Stop game | Play Game (Manual & AI mode) |
 
 ---
 

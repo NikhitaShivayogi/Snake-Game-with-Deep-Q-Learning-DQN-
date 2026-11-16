@@ -8,6 +8,7 @@ export const PlayGame = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [gameActive, setGameActive] = useState(false);
+  const [gamePaused, setGamePaused] = useState(false);
   const [foodEaten, setFoodEaten] = useState(0);
   const [aiGameEndMessage, setAiGameEndMessage] = useState(null);
   const [showGameOverFace, setShowGameOverFace] = useState(false);
@@ -140,21 +141,25 @@ export const PlayGame = () => {
 
   const handlePlayAgain = async () => {
     setGameActive(false);
+    setGamePaused(false);
     setShowGameOverFace(false);
+    setAiGameEndMessage(null);
     // Clean up any existing timeout
     if (gameLoopRef.current && gameLoopRef.current.timeoutId) {
       clearTimeout(gameLoopRef.current.timeoutId);
     }
     gameLoopRef.current = null;
     
-    // Just reset the game - don't start playing
+    // Reset the game only when user clicks Play Again
     await initializeGame();
   };
 
   const handleResetGame = async () => {
     // STOP THE GAME LOOP COMPLETELY
     setGameActive(false);
+    setGamePaused(false);
     setShowGameOverFace(false);
+    setAiGameEndMessage(null);
     if (gameLoopRef.current) {
       clearTimeout(gameLoopRef.current);
       gameLoopRef.current = null;
@@ -164,8 +169,97 @@ export const PlayGame = () => {
   };
   
   const handleStopGame = async () => {
-    // COMPLETELY STOP THE GAME - don't restart
+    // PAUSE THE GAME - user can resume
     setGameActive(false);
+    setGamePaused(true);
+    if (gameLoopRef.current) {
+      if (gameLoopRef.current.isRunning !== undefined) {
+        gameLoopRef.current.isRunning = false;
+      }
+      if (gameLoopRef.current.timeoutId) {
+        clearTimeout(gameLoopRef.current.timeoutId);
+      }
+    }
+  };
+
+  const handleResumeGame = () => {
+    // RESUME THE GAME from pause
+    setGamePaused(false);
+    setGameActive(true);
+    
+    // Restart game loop
+    const gameState = { isRunning: true };
+    gameLoopRef.current = gameState;
+
+    if (mode === 'human') {
+      const gameLoop = async () => {
+        try {
+          if (!gameState.isRunning) return;
+          
+          const res = await gameAPI.stepHumanGame();
+          
+          if (res.data.game_over || !gameState.isRunning) {
+            setGameState(res.data);
+            setGameActive(false);
+            
+            setTimeout(() => {
+              setShowGameOverFace(true);
+            }, 1500);
+            return;
+          }
+
+          if (res.data.score > foodEaten) {
+            setFoodEaten(res.data.score);
+          }
+
+          setGameState(res.data);
+          
+          if (gameState.isRunning) {
+            gameState.timeoutId = setTimeout(gameLoop, 200);
+          }
+        } catch (err) {
+          setError(err.message);
+          setGameActive(false);
+        }
+      };
+      gameLoop();
+    } else {
+      const gameLoop = async () => {
+        try {
+          if (!gameState.isRunning) return;
+          
+          const autoRes = await gameAPI.autoPlayAI(1);
+          setGameState(autoRes.data);
+          
+          if (autoRes.data.score > foodEaten) {
+            setFoodEaten(autoRes.data.score);
+          }
+
+          if (!autoRes.data.game_over && gameState.isRunning) {
+            gameState.timeoutId = setTimeout(gameLoop, 200);
+          } else {
+            setGameActive(false);
+            setGameState(autoRes.data);
+            
+            setTimeout(() => {
+              setShowGameOverFace(true);
+              setAiGameEndMessage(`🤖 AI Game Over! Final Score: ${autoRes.data.score}`);
+              setTimeout(() => setAiGameEndMessage(null), 5000);
+            }, 1500);
+          }
+        } catch (err) {
+          setError(err.message);
+          setGameActive(false);
+        }
+      };
+      gameLoop();
+    }
+  };
+
+  const handleEndGame = async () => {
+    // END THE GAME - show game over screen
+    setGameActive(false);
+    setGamePaused(false);
     if (gameLoopRef.current) {
       if (gameLoopRef.current.isRunning !== undefined) {
         gameLoopRef.current.isRunning = false;
@@ -175,13 +269,24 @@ export const PlayGame = () => {
       }
       gameLoopRef.current = null;
     }
-    // Don't call initializeGame() - just stop
+    // Force show game over screen
+    setShowGameOverFace(true);
   };
 
   useEffect(() => {
-    if (!gameActive || mode !== 'human') return;
+    if (!gameActive) return;
 
     const handleKeyPress = async (e) => {
+      // Check for K key to stop game (works for both human and AI modes)
+      if (e.key === 'k' || e.key === 'K') {
+        e.preventDefault();
+        handleStopGame();
+        return;
+      }
+
+      // Only process movement keys for human mode
+      if (mode !== 'human') return;
+
       const keyMap = {
         'ArrowUp': 'UP',
         'ArrowDown': 'DOWN',
@@ -240,7 +345,7 @@ export const PlayGame = () => {
   }
 
   // Game Over Screen
-  if (gameState?.game_over && !gameActive) {
+  if (showGameOverFace) {
     return (
       <div className="container">
         <div style={{ marginBottom: '2rem' }}>
@@ -257,41 +362,39 @@ export const PlayGame = () => {
           <GameCanvas gameState={gameState} gridSize={25} showGameOverFace={showGameOverFace} />
         </div>
 
-        {showGameOverFace && (
-          <div className="card" style={{ marginBottom: '2rem', textAlign: 'center', padding: '3rem' }}>
-            <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#ff6b6b' }}>Game Over</h2>
-            
-            <div className="grid grid-3" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-              <div className="stat-card" style={{ backgroundColor: '#2a3a4a', borderRadius: '8px', padding: '1.5rem' }}>
-                <div className="stat-label">Score</div>
-                <div className="stat-value" style={{ fontSize: '2.5rem', color: '#FFD700' }}>
-                  {gameState?.score || 0}
-                </div>
-              </div>
-              <div className="stat-card" style={{ backgroundColor: '#2a3a4a', borderRadius: '8px', padding: '1.5rem' }}>
-                <div className="stat-label">Food Eaten</div>
-                <div className="stat-value" style={{ fontSize: '2.5rem', color: '#FF6B6B' }}>
-                  {gameState?.score || 0}
-                </div>
-              </div>
-              <div className="stat-card" style={{ backgroundColor: '#2a3a4a', borderRadius: '8px', padding: '1.5rem' }}>
-                <div className="stat-label">Snake Length</div>
-                <div className="stat-value" style={{ fontSize: '2.5rem', color: '#00ff88' }}>
-                  {gameState?.snake?.length || 0}
-                </div>
+        <div className="card" style={{ marginBottom: '2rem', textAlign: 'center', padding: '3rem' }}>
+          <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#ff6b6b' }}>Game Over</h2>
+          
+          <div className="grid grid-3" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+            <div className="stat-card" style={{ backgroundColor: '#2a3a4a', borderRadius: '8px', padding: '1.5rem' }}>
+              <div className="stat-label">Score</div>
+              <div className="stat-value" style={{ fontSize: '2.5rem', color: '#FFD700' }}>
+                {gameState?.score || 0}
               </div>
             </div>
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-              <button className="btn-primary" onClick={handlePlayAgain} style={{ cursor: 'pointer', padding: '0.75rem 2rem', fontSize: '1.1rem' }}>
-                Play Again
-              </button>
-              <button className="btn-secondary" onClick={handleResetGame} style={{ cursor: 'pointer', padding: '0.75rem 2rem', fontSize: '1.1rem' }}>
-                Back to Menu
-              </button>
+            <div className="stat-card" style={{ backgroundColor: '#2a3a4a', borderRadius: '8px', padding: '1.5rem' }}>
+              <div className="stat-label">Food Eaten</div>
+              <div className="stat-value" style={{ fontSize: '2.5rem', color: '#FF6B6B' }}>
+                {gameState?.score || 0}
+              </div>
+            </div>
+            <div className="stat-card" style={{ backgroundColor: '#2a3a4a', borderRadius: '8px', padding: '1.5rem' }}>
+              <div className="stat-label">Snake Length</div>
+              <div className="stat-value" style={{ fontSize: '2.5rem', color: '#00ff88' }}>
+                {gameState?.snake?.length || 0}
+              </div>
             </div>
           </div>
-        )}
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <button className="btn-primary" onClick={handlePlayAgain} style={{ cursor: 'pointer', padding: '0.75rem 2rem', fontSize: '1.1rem' }}>
+              Play Again
+            </button>
+            <button className="btn-secondary" onClick={handleResetGame} style={{ cursor: 'pointer', padding: '0.75rem 2rem', fontSize: '1.1rem' }}>
+              Back to Menu
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -348,15 +451,29 @@ export const PlayGame = () => {
         <GameCanvas gameState={gameState} gridSize={25} showGameOverFace={showGameOverFace} />
         <div style={{ textAlign: 'center', marginTop: '1rem', position: 'relative', zIndex: 10 }}>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            {!gameActive ? (
+            {!gameActive && !gamePaused ? (
               <button className="btn-primary" onClick={handleStartGame} style={{ position: 'relative', zIndex: 10, cursor: 'pointer', padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
                 Start Game
               </button>
-            ) : (
-              <button className="btn-danger" onClick={handleStopGame} style={{ position: 'relative', zIndex: 10, cursor: 'pointer', padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
-                Stop Game
-              </button>
-            )}
+            ) : gameActive && !gamePaused ? (
+              <>
+                <button className="btn-warning" onClick={handleStopGame} style={{ position: 'relative', zIndex: 10, cursor: 'pointer', padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
+                  Pause Game
+                </button>
+                <button className="btn-danger" onClick={handleEndGame} style={{ position: 'relative', zIndex: 10, cursor: 'pointer', padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
+                  End Game
+                </button>
+              </>
+            ) : gamePaused ? (
+              <>
+                <button className="btn-primary" onClick={handleResumeGame} style={{ position: 'relative', zIndex: 10, cursor: 'pointer', padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
+                  Resume Game
+                </button>
+                <button className="btn-danger" onClick={handleEndGame} style={{ position: 'relative', zIndex: 10, cursor: 'pointer', padding: '0.75rem 1.5rem', fontSize: '1rem' }}>
+                  End Game
+                </button>
+              </>
+            ) : null}
           </div>
         </div>
       </div>
@@ -386,7 +503,9 @@ export const PlayGame = () => {
               <div><strong>Arrow Keys</strong> or <strong>WASD</strong> to move</div>
               <div>Eat food to increase score</div>
               <div>Avoid walls and yourself</div>
-              <div>Click "Stop Game" to end</div>
+              <div><strong>Pause Game</strong> button to pause</div>
+              <div><strong>End Game</strong> button to end game</div>
+              <div>Press <strong>K</strong> key to end anytime</div>
             </div>
           </div>
         </div>
